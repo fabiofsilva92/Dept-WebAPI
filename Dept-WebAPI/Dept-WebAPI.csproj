@@ -8,5 +8,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.3"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.3"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.3"/>
+    <ProjectReference Include="..\Dept.Domain\Dept.Domain.csproj" />
+    <ProjectReference Include="..\Dept.Repository\Dept.Repository.csproj" />
   </ItemGroup>
 </Project>
+

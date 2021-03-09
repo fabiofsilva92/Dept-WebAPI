@@ -1,25 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Dept_WebAPI.Models;
-using Dept_WebAPI.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Dept.Repository;
+using Dept.Domain;
 
 namespace Dept_WebAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class FuncionarioController : ControllerBase
     {
-        public readonly DataContext _context;
-        public FuncionarioController(DataContext context)
+        public readonly IRepository _repo;
+        public FuncionarioController(IRepository repo)
         {
-            _context = context;
-
+            _repo = repo;
         }
 
 
@@ -28,7 +23,7 @@ namespace Dept_WebAPI.Controllers
         {
             try
             {
-                var results = await _context.Funcionarios.ToListAsync();
+                var results = await _repo.GetAllFuncionarioAsync();
                 return Ok(results);
             }
             catch (System.Exception)
@@ -44,7 +39,7 @@ namespace Dept_WebAPI.Controllers
         {
             try
             {
-                var results = await _context.Funcionarios.FirstOrDefaultAsync(x => x.FuncionarioId == id);
+                var results = await _repo.GetAllFuncionarioAsyncById(id);
                 return Ok(results);
             }
             catch (System.Exception)
@@ -53,5 +48,74 @@ namespace Dept_WebAPI.Controllers
             }  
             
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Post(Funcionario model)
+        {
+            try
+            {
+                _repo.Add(model);
+
+                if(await _repo.SaveChangesAsync())
+                {
+                    return Created($"/api/funcionario/{model.Id}", model);
+                }
+                
+            }
+            catch (System.Exception)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "BD falhou");
+            }      
+
+            return BadRequest();
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Put(int FuncionaioId, Funcionario model)
+        {
+            try
+            {
+                var funcionario = await _repo.GetAllFuncionarioAsyncById(FuncionaioId);
+
+                if(funcionario == null) return NotFound();
+
+                _repo.Update(model);
+
+                if(await _repo.SaveChangesAsync()){
+                    return Created($"/api/funcionario/{model.Id}", model);
+                }
+                
+            }
+            catch (System.Exception)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "BD falhou");
+            }      
+
+            return BadRequest();
+        }        
+
+        [HttpDelete]
+        public async Task<IActionResult> Delete(int FuncionaioId)
+        {
+            try
+            {
+                var funcionario = await _repo.GetAllFuncionarioAsyncById(FuncionaioId);
+
+                if(funcionario == null) return NotFound();
+
+                _repo.Delete(funcionario);
+
+                if(await _repo.SaveChangesAsync()){
+                    return Ok();
+                }
+                
+            }
+            catch (System.Exception)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "BD falhou");
+            }      
+
+            return BadRequest();
+        }            
     }
 }
